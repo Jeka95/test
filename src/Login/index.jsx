@@ -21,18 +21,12 @@ class LogIn extends React.Component {
       this.setState({
          [e.target.name]: e.target.value,
       });
-      console.log(this.state);
    }
    LogInUser = async () => {
-      console.log("вхід");
       await firebase.auth().signInWithEmailAndPassword(this.state.email, this.state.password)
          .then((user) => {
             this.setState({ logIn: true })
-            console.log(this.state.logIn);
-            console.log(user);
-            console.log(user.user.displayName);
             var userId = firebase.auth().currentUser.uid;
-            console.log(userId);
             <Redirect to="/timer" />
          }
          )

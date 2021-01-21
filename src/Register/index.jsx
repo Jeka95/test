@@ -24,16 +24,12 @@ class Register extends React.Component {
    handleRegistration = async (e) => {
       e.preventDefault();
 
-      console.log("xzxzxz");
       let nameProfile = this.state.firstname + " " + this.state.lastname;
       await firebase.auth().createUserWithEmailAndPassword(this.state.email, this.state.password).then(function (data) {
          data.user.updateProfile({ displayName: nameProfile })
-         console.log(this.state.logIn);
       }).catch(function (error) {
       });
       var userId = firebase.auth().currentUser.uid;
-      console.log(userId);
-
       database.ref('users/' + userId).set({
          username: nameProfile,
          email: this.state.email,

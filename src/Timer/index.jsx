@@ -33,7 +33,6 @@ class Timer extends React.Component {
       var user = firebase.auth().currentUser;
       let TimerDeskop = () => {
          let userId = user.uid;
-         console.log(userId);
          firebase.database().ref('users/' + userId).set({
             email: this.state.email,
             username: this.state.name,
@@ -49,27 +48,23 @@ class Timer extends React.Component {
       }
       let TimerMobile = () => {
          let userId = user.uid;
-         console.log(userId);
-         if (userId !== null) {
-            firebase.database().ref('users/' + userId).set({
-               email: this.state.email,
-               username: this.state.name,
-               timedata: {
-                  hoursdeskop: this.state.hoursdeskop,
-                  minutedeskop: this.state.minutedeskop,
-                  secondsdeskop: this.state.secondsdeskop,
-                  hoursmobile: this.state.hoursmobile,
-                  minutemobile: this.state.minutemobile,
-                  secondsmobile: this.state.secondsmobile,
-               }
-            })
-         }
+         firebase.database().ref('users/' + userId).set({
+            email: this.state.email,
+            username: this.state.name,
+            timedata: {
+               hoursdeskop: `${this.state.hoursdeskop}`,
+               minutedeskop: `${this.state.minutedeskop}`,
+               secondsdeskop: `${this.state.secondsdeskop}`,
+               hoursmobile: `${this.state.hoursmobile}`,
+               minutemobile: `${this.state.minutemobile}`,
+               secondsmobile: `${this.state.secondsmobile}`,
+            }
+         })
       }
       this._isMounted = true;
       var readtime = firebase.database().ref('users/' + user.uid);
       readtime.on('value', (snapshot) => {
          const data = snapshot.val();
-         console.log(data);
          if (this._isMounted) {
             this.setState({
                hoursdeskop: data.timedata.hoursdeskop,
@@ -83,49 +78,57 @@ class Timer extends React.Component {
             })
          }
          if (/Android|webOS|iPhone|iPad|iPod|BlackBerry|BB|PlayBook|IEMobile|Windows Phone|Kindle|Silk|Opera Mini/i.test(navigator.userAgent)) {
-            console.log("Вы используете мобильное устройство (телефон или планшет).");
+            // console.log("Вы используете мобильное устройство (телефон или планшет).");
             mobiletime = setTimeout(() => {
-               this.setState((state) => {
-                  if (state.secondsmobile == 59) {
-                     return {
-                        secondsmobile: '00',
-                        minutemobile: +state.minutemobile + 1,
+               if (this._isMounted) {
+                  this.setState((state) => {
+                     if (state.secondsmobile == 59) {
+                        return {
+                           secondsmobile: '00',
+                           minutemobile: +state.minutemobile + 1,
+                        }
                      }
-                  }
-                  if (state.minutemobile == 59) {
-                     return {
-                        minutemobile: '00',
-                        hoursmobile: +state.hoursmobile + 1,
+                     if (state.minutemobile == 59) {
+                        return {
+                           minutemobile: '00',
+                           hoursmobile: +state.hoursmobile + 1,
+                        }
                      }
-                  }
-                  return { secondsmobile: +state.secondsmobile + 1 };
-               });
-               TimerMobile();
+                     return { secondsmobile: +state.secondsmobile + 1 };
+                  });
+                  TimerMobile();
+               }
             }, 1000);
          }
          else {
-            console.log("Вы используете ПК.");
+            // console.log("Вы используете ПК.");
             deskoptime = setTimeout(() => {
-               this.setState((state) => {
-                  if (state.secondsdeskop == 59) {
-                     return {
-                        secondsdeskop: '00',
-                        minutedeskop: +state.minutedeskop + 1,
+               if (this._isMounted) {
+                  this.setState((state) => {
+                     if (state.secondsdeskop == 59) {
+                        return {
+                           secondsdeskop: '00',
+                           minutedeskop: +state.minutedeskop + 1,
+                        }
                      }
-                  }
-                  if (state.minutedeskop == 59) {
-                     return {
-                        minutedeskop: '00',
-                        hoursdeskop: +state.hoursdeskop + 1,
+                     if (state.minutedeskop == 59) {
+                        return {
+                           minutedeskop: '00',
+                           hoursdeskop: +state.hoursdeskop + 1,
+                        }
                      }
-                  }
-                  return { secondsdeskop: +state.secondsdeskop + 1 };
-               });
-               TimerDeskop();
+                     return { secondsdeskop: +state.secondsdeskop + 1 };
+                  });
+                  TimerDeskop();
+               }
             }, 1000);
          }
       });
+   }
 
+   componentWillUnmount() {
+      clearTimeout(deskoptime);
+      clearTimeout(mobiletime);
    }
    singout = () => {
       firebase.auth().signOut().then(() => {
@@ -133,7 +136,6 @@ class Timer extends React.Component {
          clearTimeout(mobiletime);
          this._isMounted = false;
          this.setState({ redirect: true })
-         console.log("Sign-out successful.");
       }).catch((error) => {
          // An error happened.
       });
