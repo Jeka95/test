@@ -1,5 +1,5 @@
 import React from 'react';
-import { NavLink } from "react-router-dom";
+import { NavLink, Redirect } from "react-router-dom";
 
 import firebase from 'firebase/app';
 import 'firebase/auth';
@@ -20,8 +20,10 @@ class Timer extends React.Component {
          hoursmobile: '00',
          minutemobile: '00',
          secondsmobile: '00',
+         redirect: false,
       }
       this._isMounted = false;
+
    }
 
 
@@ -125,11 +127,12 @@ class Timer extends React.Component {
       });
 
    }
-   singout = async () => {
-      await firebase.auth().signOut().then(() => {
+   singout = () => {
+      firebase.auth().signOut().then(() => {
          clearTimeout(deskoptime);
          clearTimeout(mobiletime);
          this._isMounted = false;
+         this.setState({ redirect: true })
          console.log("Sign-out successful.");
       }).catch((error) => {
          // An error happened.
@@ -137,11 +140,14 @@ class Timer extends React.Component {
    }
 
    render() {
+      if (this.state.redirect) {
+         return <Redirect to="/" />
+      }
       return (
 
          <section className="logged">
             <div>Hello {this.state.name}</div>
-            <NavLink to="/" className="logged__out" onClick={this.singout} >Log out</NavLink>
+            <button className="logged__out" onClick={this.singout} >Log out</button>
             <div className="logged__deskop">
                <div className="logged__deskoptext">Deskop</div>
                <img src={timer} alt="" />
